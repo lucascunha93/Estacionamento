@@ -20,27 +20,29 @@ class Estacionamento {
     pop(placa){ // remove o carro desejado e corrige o estacionamento
 
         var r = 0;
+        var cont = 0;
 
-        for (let v = 0; v <= this.topo; v++) {
+        for (let v = 0; v <= this.topo; v++) { // remove o carro pela placa, acrescentando a manobra
             if (placa == this.vagas[v].placa) {
                 this.vagas[v].acrescentarManobra();
-                alert("Carro foi manobrado: " +this.vagas[v].manobra + " veze(s)")
+                alert("Carro foi manobrado: " +this.vagas[v].manobra + " veze(s)");
                 
-                this.vagas[v] = null;
+                this.vagas[v] = undefined;
                 r = v;
             }
         }
 
-        for (let m = this.topo; m > r; m--) {
-            var man = this.vagas[m];
-            man.acrescentarManobra();
-            
+        for (let m = this.topo; m > r; m--) { // carros são removido para a rua(outra pilha);
+            this.vagas[m].manobrasCarros();
+            this.vagas[m] = undefined;
+            this.topo--;
+            cont++;
         }
 
-        for (let e = 0; e < this.topo; e++) {
-            if(this.vagas[e] == null){
-                this.vagas[e] = this.vagas[e+1];
-                this.vagas[e+1] = null;
+        for (let e = this.topo; e <= cont ; e++) { // reposiciona os carros no estacionamento
+            if(this.vagas[e] == undefined) {
+                
+                this.vagas[e] == ruaManobra.estacionarCarro();
             }
         }
         this.topo--;
@@ -72,18 +74,34 @@ class Carro {
         alert("Placa:" +this.placa + "Manobras: " +this.manobra);
     }
 
-    compara(){
-        return this.placa;
-        }
-    
-    acrescentarManobra(){
+    acrescentarManobra() {
         this.manobra++;
+    }
+
+    manobrasCarros() {
+        this.manobra++;
+        var carroM = new Carro(this.placa, this.manobra);
+        ruaManobra.push(Carro);
+    }
+
+    estacionarCarro() {
+        for (let r = 0; r < this.topo ; r++) {
+            if(ruaManobra.vagas[r]== undefined){
+                break;
+            }
+            else {
+                this.manobra++;
+                return ruaManobra[r];
+            }
+        }
+        ruaManobra.pop(this.placa);
     }
 
 }
 
 
 var estacionamento = new Estacionamento();
+var ruaManobra = new Estacionamento();
 
 /*var car = new Carro( 'IPB-7938', '0');
 estacionamento.push(car);
@@ -136,7 +154,11 @@ var op = prompt("Estacionamento\nDigite a opção:\nE - Entrada\nS - Saída\nL -
             estacionamento.listar();
 
         break;
-        
+
+        case 'A':
+            console.log(Estacionamento);
+            
+        break;
         case '0':
             alert("Programa encerrado! bye bye");
         break;
