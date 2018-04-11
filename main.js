@@ -6,44 +6,49 @@ class Estacionamento {
     }
 
     push(carro){ // insere carro
-        this.topo++;
-        this.vagas[this.topo] = carro;
-        this.vagas[this.topo].manobra++;
+        if( this.estaCheio()){
+            console.log("Estacionamento cheio.");
+            return false;
         }
-
-    pop(placa){ // remove carro
-        for (let v = 0; v <= this.topo; v++) {
-            if (placa == this.vagas[v].placa) {
-                this.manobra++;
-                alert("Carro com placa: " +this.vagas[v].placa + " foi removido, com " +this.vagas[v].manobra + " manobras no estacionamento.")
-                this.vagas[v] = undefined;
-                this.topo--;
-            }
-            else {
-                return this.vagas[v];
-                this.topo--;
-                this.vagas[v].manobra++;
-                this.vagas[v] = undefined;
-            }
+        else {
+            this.topo++;
+            this.vagas[this.topo] = carro;
+            return true;
         }
     }
+
+    pop(placa){ // remove carro
+        var c = this.vagas[this.topo];
+        this.topo--;
+        return c;
+        }
 
     estaCheio() { // verifica se o estacionamento está cheio
         if(this.topo == this.tamanho) {
             alert("Estacionamento cheio!")
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    estaVazio() { // verifica se o estacionamento está cheio
+        if(this.topo == -1) {
+            alert("Estacionamento vazio!")
             return false;
         }
         else {
             return true;
         }
     }
-
+    
     listar(){ // lista os carros no estacionamento
-        if(this.topo > -1){
-        for (let i = 0; i <= this.topo; i++) {
-            var c = this.vagas[i];
-            c.mostra();
-        }
+        if(this.topo == -1){
+            for (let i = 0; i <= this.topo; i++) {
+                var c = this.vagas[i];
+                c.mostra();
+            }
         }
         else {
             alert("Estacionamento vazio");
@@ -52,13 +57,13 @@ class Estacionamento {
 }
 
 class Carro {
-    constructor(p, m){
+    constructor(p){
         this.placa = p;
-        this.manobra = m;
+        this.manobra = 1;
     }
 
     mostra() {
-        alert("Placa:" +this.placa + "Manobras: " +this.manobra);
+        alert("Placa: " +this.placa + " Manobras: " +this.manobra);
     }
 
     acrescentarManobra() {
@@ -70,39 +75,55 @@ class Carro {
 var estacionamento = new Estacionamento();
 var ruaManobra = new Estacionamento();
 
-/*
-var car = new Carro( 'IPC-7938', '0');
-estacionamento.push(car);
-estacionamento.pop('ITG-1238');
-estacionamento.listar();
-*/
-
 do{
     
-var op = prompt("Estacionamento\nDigite a opção:\nE - Entrada\nS - Saída\nL - Listar");
+var op = prompt("Estacionamento\nDigite a opção:\n\nE - Entrada\nS - Saída\nL - Listar estacionamento\n0 - Sair");
 
     switch(op.toUpperCase()){
         case 'E':
-            if(estacionamento.estaCheio()){
-            var carroP = prompt("Digite a placa do carro:");
-            carroP = new Carro (carroP, '0')
-            estacionamento.push(carroP);
+            var carroP = new Carro(prompt("Digite a placa do carro:"));
+            if (estacionamento.push(carroP)) {
+                console.log("Carro com placa "+carroP.placa+ " foi colocado no estacionamento.");
             }
-    
+            else {
+                console.log("Estacionamento não possui mais vagas, aguarde!");  
+            }
+
         break;
 
         case 'S':
-            var carroSaida = prompt("Digite a placa do carro:");
-            var carroR = estacionamento.pop(carroSaida);
-            ruaManobra.push(carroR)
+
+            console.log("|Estacio"+estacionamento.topo)
+            var carroSaida = new Carro(prompt("Digite a placa do carro:"));
+            
+            do{
+                var ce = estacionamento.pop();
+                if (carroSaida.placa === ce.placa) {
+                    ce.acrescentarManobra();
+                    console.log("Carro com placa " +ce.placa+ " saiu do estacionamento.");
+                }
+                else {
+                    ce.acrescentarManobra();
+                    ruaManobra.push(ce);
+                    console.log("Carro com placa: " +ce.placa+ " foi colocado na rua!");
+                }
+            }while(carroSaida.placa != ce.placa)
+
+            console.log("RUA "+ruaManobra.topo)
+            console.log("Est "+estacionamento.topo)
+            var tam=ruaManobra.topo;
+            for (var i = 0; i <= tam; i++) {
+                
+                cr = ruaManobra.pop();
+                console.log("Veiculo com placa " +cr.placa+ " voltou para o estacionamento! ",+i);
+                cr.acrescentarManobra();
+                estacionamento.push(cr);
+            }
         break;
 
         case 'L':
+            alert("Veiculo(s) no estacionamento:");        
             estacionamento.listar();            
-        break;
-
-        case 'R':
-            ruaManobra.listar();            
         break;
 
         case '0':
